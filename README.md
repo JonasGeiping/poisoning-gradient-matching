@@ -64,7 +64,7 @@ similar method. Then register a new class in the ```witchcoven/__init__``` inter
 
 
 ## Poisoning Benchmark
-We also support attacks against the poisoning benchmark of https://github.com/aks2203/poisoning-benchmark. To brew poisoned datasets for this benchmark, refer to the ```benchmark_poison_brewing.sh``` script. To evaluate these poisoned datasets against the benchmark, run ```benchmark_poison_evaluation.sh```, assuming the github repository of the benchmark is in the same folder level as this repository.
+We also support attacks against the poisoning benchmark of https://github.com/aks2203/poisoning-benchmark. Runfiles for the benchmark can be created using the ```benchmark_gen.py```script. To brew poisoned datasets for this benchmark, refer to the autocreated```benchmark_poison_brewing.sh``` script. To evaluate these poisoned datasets against the benchmark, run ```benchmark_poison_evaluation.sh```, assuming the github repository of the benchmark is in the same folder level as this repository.
 
 
 Precomputed poisoned data for benchmark results based on gradient matching can be found at https://www.dropbox.com/sh/y8bwq0fqqkcz36d/AAC58nZRwRRtKDsn-rk8S1hca?dl=0.
