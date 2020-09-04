@@ -1,0 +1,1 @@
+python brew_poison.py --net ResNet18 --name final --poisonkey 1000000000 --modelkey 1000000000 --pretrained --dataset ImageNet1k --pbatch 128 --eps 32 --budget 0.1 --restarts 1 --vruns 0 --save automl-all
