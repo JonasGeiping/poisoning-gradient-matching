@@ -1,7 +1,8 @@
 # Industrial Scale Data Poisoning via Gradient Matching
 
 
-This framework implements data poisoning through gradien matching, a strategy that reliably apply imperceptible adversarial patterns to training data. If this training data is later used to train an entirely new model, this new model will misclassify specific target images.
+This framework implements data poisoning through gradien matching, a strategy that reliably apply imperceptible adversarial patterns to training data. If this training data is later used to train an entirely new model, this new model will misclassify specific target images. 
+The framework was written by [Liam Fowl](https://github.com/lhfowl) and me.
 
 ![Teaser](imgs/pipeline1.png "Poisoning via Gradient Matching")
 
