@@ -43,7 +43,7 @@ The cmd-script features a ton of arguments, most of which are very optional. Imp
 We also implement some related methods, aside from Gradient Matching.
 * Watermarking (Sanity Check) [also featured in https://arxiv.org/abs/1804.00792]
 * Poison Frogs https://arxiv.org/abs/1804.00792
-* MetaPoison [only for the case of an ensemble of 1, refer to https://github.com/wronnyhuang/metapoison for efficient code for large ensembles]
+* MetaPoison https://arxiv.org/abs/2004.00225 [only for the case of an ensemble of 1, refer to https://github.com/wronnyhuang/metapoison for efficient code for large ensembles]
 
 A method can be chosen by changing ```--recipe```: Choose the poison strategy from ```gradient-matching```, ```gradient-matching-private```, ```poison-frogs```, ```watermark``` and ```metapoison```.
 
