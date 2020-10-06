@@ -155,6 +155,8 @@ class Kettle():
                 params = dict(source_size=32, target_size=32, shift=8, fliplr=True)
             elif 'MNIST' in self.args.dataset:
                 params = dict(source_size=28, target_size=28, shift=4, fliplr=True)
+            elif 'TinyImageNet' in self.args.dataset:
+                params = dict(source_size=64, target_size=64, shift=64 // 4, fliplr=True)
             elif 'ImageNet' in self.args.dataset:
                 params = dict(source_size=224, target_size=224, shift=224 // 4, fliplr=True)
 

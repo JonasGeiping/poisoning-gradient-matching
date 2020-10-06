@@ -43,6 +43,17 @@ def get_model(model_name, dataset_name, pretrained=False):
         else:
             raise ValueError(f'Architecture {model_name} not implemented for dataset {dataset_name}.')
 
+    elif 'TinyImageNet' in dataset_name:
+        in_channels = 3
+        num_classes = 200
+
+        if 'VGG16' in model_name:
+            model = VGG('VGG16-TI', in_channels=in_channels, num_classes=num_classes)
+        elif 'ResNet' in model_name:
+            model = resnet_picker(model_name, dataset_name)
+        else:
+            raise ValueError(f'Model {model_name} not implemented for TinyImageNet')
+
     elif 'ImageNet' in dataset_name:
         in_channels = 3
         num_classes = 1000
@@ -76,6 +87,8 @@ def linear_model(dataset, num_classes=10):
         dimension = 784
     elif 'imagenet' in dataset.lower():
         dimension = 150528
+    elif 'tinyimagenet' in dataset.lower():
+        dimension = 64**2 * 3
     else:
         raise ValueError('Linear model not defined for dataset.')
     return torch.nn.Sequential(torch.nn.Flatten(), torch.nn.Linear(dimension, num_classes))
@@ -176,43 +189,55 @@ class ConvNetBN(torch.nn.Module):
 def resnet_picker(arch, dataset):
     """Pick an appropriate resnet architecture for MNIST/CIFAR."""
     in_channels = 1 if dataset == 'MNIST' else 3
-    num_classes = 10 if dataset in ['CIFAR10', 'MNIST'] else 100
+    num_classes = 10
+    if dataset in ['CIFAR10', 'MNIST']:
+        num_classes = 10
+        initial_conv = [3, 1, 1]
+    elif dataset == 'CIFAR100':
+        num_classes = 100
+        initial_conv = [3, 1, 1]
+    elif dataset == 'TinyImageNet':
+        num_classes = 200
+        initial_conv = [7, 2, 3]
+    else:
+        raise ValueError(f'Unknown dataset {dataset} for ResNet.')
+
     if arch == 'ResNet20':
-        return ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, base_width=16)
+        return ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, base_width=16, initial_conv=initial_conv)
     elif 'ResNet20-' in arch and arch[-1].isdigit():
         width_factor = int(arch[-1])
-        return ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, base_width=16 * width_factor)
+        return ResNet(torchvision.models.resnet.BasicBlock, [3, 3, 3], num_classes=num_classes, base_width=16 * width_factor, initial_conv=initial_conv)
     elif arch == 'ResNet28-10':
-        return ResNet(torchvision.models.resnet.BasicBlock, [4, 4, 4], num_classes=num_classes, base_width=16 * 10)
+        return ResNet(torchvision.models.resnet.BasicBlock, [4, 4, 4], num_classes=num_classes, base_width=16 * 10, initial_conv=initial_conv)
     elif arch == 'ResNet32':
-        return ResNet(torchvision.models.resnet.BasicBlock, [5, 5, 5], num_classes=num_classes, base_width=16)
+        return ResNet(torchvision.models.resnet.BasicBlock, [5, 5, 5], num_classes=num_classes, base_width=16, initial_conv=initial_conv)
     elif arch == 'ResNet32-10':
-        return ResNet(torchvision.models.resnet.BasicBlock, [5, 5, 5], num_classes=num_classes, base_width=16 * 10)
+        return ResNet(torchvision.models.resnet.BasicBlock, [5, 5, 5], num_classes=num_classes, base_width=16 * 10, initial_conv=initial_conv)
     elif arch == 'ResNet44':
-        return ResNet(torchvision.models.resnet.BasicBlock, [7, 7, 7], num_classes=num_classes, base_width=16)
+        return ResNet(torchvision.models.resnet.BasicBlock, [7, 7, 7], num_classes=num_classes, base_width=16, initial_conv=initial_conv)
     elif arch == 'ResNet56':
-        return ResNet(torchvision.models.resnet.BasicBlock, [9, 9, 9], num_classes=num_classes, base_width=16)
+        return ResNet(torchvision.models.resnet.BasicBlock, [9, 9, 9], num_classes=num_classes, base_width=16, initial_conv=initial_conv)
     elif arch == 'ResNet110':
-        return ResNet(torchvision.models.resnet.BasicBlock, [18, 18, 18], num_classes=num_classes, base_width=16)
+        return ResNet(torchvision.models.resnet.BasicBlock, [18, 18, 18], num_classes=num_classes, base_width=16, initial_conv=initial_conv)
     elif arch == 'ResNet18':
-        return ResNet(torchvision.models.resnet.BasicBlock, [2, 2, 2, 2], num_classes=num_classes, base_width=64)
+        return ResNet(torchvision.models.resnet.BasicBlock, [2, 2, 2, 2], num_classes=num_classes, base_width=64, initial_conv=initial_conv)
     elif 'ResNet18-' in arch:  # this breaks the usual notation, but is nicer for now!!
         new_width = int(arch.split('-')[1])
-        return ResNet(torchvision.models.resnet.BasicBlock, [2, 2, 2, 2], num_classes=num_classes, base_width=new_width)
+        return ResNet(torchvision.models.resnet.BasicBlock, [2, 2, 2, 2], num_classes=num_classes, base_width=new_width, initial_conv=initial_conv)
     elif arch == 'ResNet34':
-        return ResNet(torchvision.models.resnet.BasicBlock, [3, 4, 6, 3], num_classes=num_classes, base_width=64)
+        return ResNet(torchvision.models.resnet.BasicBlock, [3, 4, 6, 3], num_classes=num_classes, base_width=64, initial_conv=initial_conv)
     elif arch == 'ResNet50':
-        return ResNet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], num_classes=num_classes, base_width=64)
+        return ResNet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], num_classes=num_classes, base_width=64, initial_conv=initial_conv)
     elif arch == 'ResNet101':
-        return ResNet(torchvision.models.resnet.Bottleneck, [3, 4, 23, 3], num_classes=num_classes, base_width=64)
+        return ResNet(torchvision.models.resnet.Bottleneck, [3, 4, 23, 3], num_classes=num_classes, base_width=64, initial_conv=initial_conv)
     elif arch == 'ResNet152':
-        return ResNet(torchvision.models.resnet.Bottleneck, [3, 8, 36, 3], num_classes=num_classes, base_width=64)
+        return ResNet(torchvision.models.resnet.Bottleneck, [3, 8, 36, 3], num_classes=num_classes, base_width=64, initial_conv=initial_conv)
     else:
-        raise ValueError(f'Invalid ResNet [CIFAR] model chosen: {arch}.')
+        raise ValueError(f'Invalid ResNet [{dataset}] model chosen: {arch}.')
 
 
 class ResNet(torchvision.models.ResNet):
-    """ResNet generalization for CIFAR thingies.
+    """ResNet generalization for CIFAR-like thingies.
 
     This is a minor modification of
     https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py,
@@ -221,7 +246,7 @@ class ResNet(torchvision.models.ResNet):
 
     def __init__(self, block, layers, num_classes=10, zero_init_residual=False,
                  groups=1, base_width=64, replace_stride_with_dilation=[False, False, False, False],
-                 norm_layer=torch.nn.BatchNorm2d, strides=[1, 2, 2, 2]):
+                 norm_layer=torch.nn.BatchNorm2d, strides=[1, 2, 2, 2], initial_conv=[3, 1, 1]):
         """Initialize as usual. Layers and strides are scriptable."""
         super(torchvision.models.ResNet, self).__init__()  # torch.nn.Module
         self._norm_layer = norm_layer
@@ -234,7 +259,8 @@ class ResNet(torchvision.models.ResNet):
 
         self.inplanes = base_width
         self.base_width = 64  # Do this to circumvent BasicBlock errors. The value is not actually used.
-        self.conv1 = torch.nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = torch.nn.Conv2d(3, self.inplanes, kernel_size=initial_conv[0],
+                                     stride=initial_conv[1], padding=initial_conv[2], bias=False)
         self.bn1 = norm_layer(self.inplanes)
         self.relu = torch.nn.ReLU(inplace=True)
 
@@ -265,19 +291,6 @@ class ResNet(torchvision.models.ResNet):
                 elif isinstance(m, BasicBlock):
                     torch.nn.init.constant_(m.bn2.weight, 0)
 
-
-    def get_features(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-
-        for layer in self.layers:
-            x = layer(x)
-
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-
-        return x
 
     def _forward_impl(self, x):
         # See note [TorchScript super()]

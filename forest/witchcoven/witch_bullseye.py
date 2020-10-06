@@ -7,14 +7,10 @@ torch.backends.cudnn.benchmark = BENCHMARK
 
 from .witch_base import _Witch
 
-class WitchFrogs(_Witch):
-    """Brew poison frogs poison with given arguments.
+class WitchBullsEye(_Witch):
+    """Brew poison frogs variant with averaged feature matching instead of sums of feature matches.
 
-    “Double, double toil and trouble;
-    Fire burn, and cauldron bubble....
-
-    Round about the cauldron go;
-    In the poison'd entrails throw.”
+    This is also known as BullsEye Polytope Attack.
 
     """
 
@@ -35,7 +31,7 @@ class WitchFrogs(_Witch):
             outputs_targets = feature_model(targets)
             prediction = (last_layer(outputs).data.argmax(dim=1) == labels).sum()
 
-            feature_loss = (outputs.mean(dim=0, keepdim=True) - outputs_targets).pow(2).mean()
+            feature_loss = (outputs.mean(dim=0) - outputs_targets.mean(dim=0)).pow(2).mean()
             feature_loss.backward(retain_graph=self.retain)
             return feature_loss.detach().cpu(), prediction.detach().cpu()
         return closure

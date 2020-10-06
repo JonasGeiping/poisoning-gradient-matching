@@ -14,9 +14,9 @@ def options():
     ###########################################################################
     # Central:
     parser.add_argument('--net', default='ResNet18', type=lambda s: [str(item) for item in s.split(',')])
-    parser.add_argument('--dataset', default='CIFAR10', type=str, choices=['CIFAR10', 'CIFAR100', 'ImageNet', 'ImageNet1k', 'MNIST'])
+    parser.add_argument('--dataset', default='CIFAR10', type=str, choices=['CIFAR10', 'CIFAR100', 'ImageNet', 'ImageNet1k', 'MNIST', 'TinyImageNet'])
     parser.add_argument('--recipe', default='gradient-matching', type=str, choices=['gradient-matching', 'gradient-matching-private',
-                                                                                    'watermarking', 'poison-frogs', 'metapoison'])
+                                                                                    'watermarking', 'poison-frogs', 'metapoison', 'bullseye'])
     parser.add_argument('--threatmodel', default='single-class', type=str, choices=['single-class', 'third-party', 'random-subset'])
 
     # Reproducibility management:
@@ -93,8 +93,6 @@ def options():
     # Optionally, datasets can be stored as LMDB or within RAM:
     parser.add_argument('--lmdb_path', default=None, type=str)
     parser.add_argument('--cache_dataset', action='store_true', help='Cache the entire thing :>')
-    parser.add_argument('--benchmark', default='', type=str, help='Path to benchmarking setup (pickle file)')
-    parser.add_argument('--benchmark_idx', default=0, type=int, help='Index of benchmark test')
 
     # These options allow for testing against the toxicity benchmark found at
     # https://github.com/aks2203/poisoning-benchmark
@@ -102,7 +100,6 @@ def options():
     parser.add_argument('--benchmark_idx', default=0, type=int, help='Index of benchmark test')
 
     # Debugging:
-    parser.add_argument('--name', default='', type=str, help='Name tag for the result table and possibly for export folders.')
     parser.add_argument('--dryrun', action='store_true')
     parser.add_argument('--save', default=None, help='Export poisons into a given format. Options are full/limited/automl/numpy.')
 

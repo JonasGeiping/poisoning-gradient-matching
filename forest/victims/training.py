@@ -149,7 +149,7 @@ def run_step(kettle, poison_delta, loss_fn, epoch, stats, model, defs, criterion
         scheduler.step()
 
     if epoch % defs.validate == 0 or epoch == (defs.epochs - 1):
-        valid_acc, valid_loss = run_validation(model, criterion, kettle.validloader, kettle.setup)
+        valid_acc, valid_loss = run_validation(model, criterion, kettle.validloader, kettle.setup, kettle.args.dryrun)
         target_acc, target_loss, target_clean_acc, target_clean_loss = check_targets(
             model, criterion, kettle.targetset, kettle.poison_setup['intended_class'],
             kettle.poison_setup['target_class'],
@@ -172,7 +172,7 @@ def run_step(kettle, poison_delta, loss_fn, epoch, stats, model, defs, criterion
         stats['backward_time'] = 0
 
 
-def run_validation(model, criterion, dataloader, setup):
+def run_validation(model, criterion, dataloader, setup, dryrun=False):
     """Get accuracy of model relative to dataloader."""
     model.eval()
     correct = 0
@@ -187,6 +187,8 @@ def run_validation(model, criterion, dataloader, setup):
             loss += criterion(outputs, targets).item()
             total += targets.size(0)
             correct += (predicted == targets).sum().item()
+            if dryrun:
+                break
 
     accuracy = correct / total
     loss_avg = loss / (i + 1)
