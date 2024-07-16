@@ -164,7 +164,7 @@ class _Witch():
                 att_optimizer.step()
                 if self.args.scheduling:
                     scheduler.step()
-                att_optimizer.zero_grad()
+                att_optimizer.zero_grad(set_to_none=False)
                 with torch.no_grad():
                     # Projection Step
                     poison_delta.data = torch.max(torch.min(poison_delta, self.args.eps /
