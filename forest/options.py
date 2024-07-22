@@ -42,6 +42,7 @@ def options():
             "poison-frogs",
             "metapoison",
             "bullseye",
+            "zoutendijk",
         ],
     )
     parser.add_argument(
