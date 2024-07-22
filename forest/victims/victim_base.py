@@ -2,11 +2,12 @@
 
 import torch
 
-from .models import get_model
-from .training import get_optimizers, run_step
-from .optimization_strategy import training_strategy
-from ..utils import average_dicts
 from ..consts import BENCHMARK, SHARING_STRATEGY
+from ..utils import average_dicts
+from .models import get_model
+from .optimization_strategy import training_strategy
+from .training import get_optimizers, run_step
+
 torch.backends.cudnn.benchmark = BENCHMARK
 torch.multiprocessing.set_sharing_strategy(SHARING_STRATEGY)
 
@@ -38,12 +39,14 @@ class _VictimBase:
 
     """
 
-    def __init__(self, args, setup=dict(device=torch.device('cpu'), dtype=torch.float)):
+    def __init__(self, args, setup=dict(device=torch.device("cpu"), dtype=torch.float)):
         """Initialize empty victim."""
         self.args, self.setup = args, setup
         if self.args.ensemble < len(self.args.net):
-            raise ValueError(f'More models requested than ensemble size.'
-                             f'Increase ensemble size or reduce models.')
+            raise ValueError(
+                f"More models requested than ensemble size."
+                f"Increase ensemble size or reduce models."
+            )
         self.initialize()
 
     def gradient(self, images, labels):
@@ -71,7 +74,6 @@ class _VictimBase:
         """Reset scheduler object to initial state."""
         raise NotImplementedError()
 
-
     """ Methods to initialize a model."""
 
     def initialize(self, seed=None):
@@ -81,13 +83,13 @@ class _VictimBase:
 
     def train(self, kettle, max_epoch=None):
         """Clean (pre)-training of the chosen model, no poisoning involved."""
-        print('Starting clean training ...')
+        print("Starting clean training ...")
         return self._iterate(kettle, poison_delta=None, max_epoch=max_epoch)
 
     def retrain(self, kettle, poison_delta):
         """Check poison on the initialization it was brewed on."""
         self.initialize(seed=self.model_init_seed)
-        print('Model re-initialized to initial seed.')
+        print("Model re-initialized to initial seed.")
         return self._iterate(kettle, poison_delta=poison_delta)
 
     def validate(self, kettle, poison_delta):
@@ -95,7 +97,7 @@ class _VictimBase:
         run_stats = list()
         for runs in range(self.args.vruns):
             self.initialize()
-            print('Model reinitialized to random seed.')
+            print("Model reinitialized to random seed.")
             run_stats.append(self._iterate(kettle, poison_delta=poison_delta))
 
         return average_dicts(run_stats)
@@ -108,13 +110,17 @@ class _VictimBase:
         """Validate a given poison by training the model and checking target accuracy."""
         raise NotImplementedError()
 
-    def _adversarial_step(self, kettle, poison_delta, step, poison_targets, true_classes):
+    def _adversarial_step(
+        self, kettle, poison_delta, step, poison_targets, true_classes
+    ):
         """Step through a model epoch to in turn minimize target loss."""
         raise NotImplementedError()
 
     def _initialize_model(self, model_name):
 
-        model = get_model(model_name, self.args.dataset, pretrained=self.args.pretrained)
+        model = get_model(
+            model_name, self.args.dataset, pretrained=self.args.pretrained
+        )
         # Define training routine
         defs = training_strategy(model_name, self.args)
         criterion = torch.nn.CrossEntropyLoss()
@@ -122,7 +128,29 @@ class _VictimBase:
 
         return model, defs, criterion, optimizer, scheduler
 
-
-    def _step(self, kettle, poison_delta, loss_fn, epoch, stats, model, defs, criterion, optimizer, scheduler):
+    def _step(
+        self,
+        kettle,
+        poison_delta,
+        loss_fn,
+        epoch,
+        stats,
+        model,
+        defs,
+        criterion,
+        optimizer,
+        scheduler,
+    ):
         """Single epoch. Can't say I'm a fan of this interface, but ..."""
-        run_step(kettle, poison_delta, loss_fn, epoch, stats, model, defs, criterion, optimizer, scheduler)
+        run_step(
+            kettle,
+            poison_delta,
+            loss_fn,
+            epoch,
+            stats,
+            model,
+            defs,
+            criterion,
+            optimizer,
+            scheduler,
+        )
