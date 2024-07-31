@@ -42,7 +42,6 @@ def options():
             "poison-frogs",
             "metapoison",
             "bullseye",
-            "zoutendijk",
         ],
     )
     parser.add_argument(
@@ -87,6 +86,7 @@ def options():
     parser.add_argument("--poison_path", default="poisons/", type=str)
     parser.add_argument(
         "--data_path",
+        # 最後には変えようね
         default="/hpc_share/ee217092/poisoning-gradient-matching/datasets",
         type=str,
     )
@@ -270,4 +270,18 @@ def options():
         "Only the launch utility should set this argument!",
     )
 
+    # Zoutendjikの定理
+    parser.add_argument(
+        "--zoutendijk",
+        type=bool,
+        default=False,
+        help="Use Zoutendijk's method to optimize",
+    )
+    # グリッドサーチ
+    parser.add_argument(
+        "--grid_search",
+        type=bool,
+        default=False,
+        help="Use grid search to optimize",
+    )
     return parser
