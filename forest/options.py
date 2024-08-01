@@ -270,18 +270,12 @@ def options():
         "Only the launch utility should set this argument!",
     )
 
-    # Zoutendjikの定理
+    # wolfe
     parser.add_argument(
-        "--zoutendijk",
-        type=bool,
-        default=False,
-        help="Use Zoutendijk's method to optimize",
-    )
-    # グリッドサーチ
-    parser.add_argument(
-        "--grid_search",
-        type=bool,
-        default=False,
-        help="Use grid search to optimize",
+        "--wolfe",
+        type=float,
+        nargs=2,
+        default=None,
+        help="Wolfe conditions for line search",
     )
     return parser
