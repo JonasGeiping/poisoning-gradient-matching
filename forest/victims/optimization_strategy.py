@@ -2,19 +2,25 @@
 
 from dataclasses import dataclass
 
-BRITTLE_NETS = ['convnet', 'mobilenet', 'vgg', 'alexnet']  # handled with lower learning rate
+BRITTLE_NETS = [
+    "convnet",
+    "mobilenet",
+    "vgg",
+    "alexnet",
+]  # handled with lower learning rate
+
 
 def training_strategy(model_name, args):
     """Parse training strategy."""
-    if args.optimization == 'conservative':
+    if args.optimization == "conservative":
         defs = ConservativeStrategy(model_name, args)
-    elif args.optimization == 'private':
+    elif args.optimization == "private":
         defs = PrivacyStrategy(model_name, args)
-    elif args.optimization == 'adversarial':
+    elif args.optimization == "adversarial":
         defs = AdversarialStrategy(model_name, args)
-    elif args.optimization == 'basic':
+    elif args.optimization == "basic":
         defs = BasicStrategy(model_name, args)
-    elif args.optimization == 'memory-saving':
+    elif args.optimization == "memory-saving":
         defs = MemoryStrategy(model_name, args)
     else:
         defs = FastStrategy(model_name, args)
@@ -25,15 +31,15 @@ def training_strategy(model_name, args):
 class Strategy:
     """Default usual parameters, not intended for parsing."""
 
-    epochs : int
-    batch_size : int
-    optimizer : str
-    lr : float
-    scheduler : str
-    weight_decay : float
-    augmentations : bool
-    privacy : dict
-    validate : int
+    epochs: int
+    batch_size: int
+    optimizer: str
+    lr: float
+    scheduler: str
+    weight_decay: float
+    augmentations: bool
+    privacy: dict
+    validate: int
 
     def __init__(self, model_name, args):
         """Defaulted parameters. Apply overwrites from args."""
@@ -46,6 +52,7 @@ class Strategy:
         if any(net in model_name.lower() for net in BRITTLE_NETS):
             self.lr *= 0.1
 
+
 @dataclass
 class ConservativeStrategy(Strategy):
     """Default usual parameters, defines a config object."""
@@ -55,8 +62,11 @@ class ConservativeStrategy(Strategy):
         self.lr = 0.1
         self.epochs = 40
         self.batch_size = 128
-        self.optimizer = 'SGD'
-        self.scheduler = 'linear'
+        self.optimizer = "SGD"
+        if args.wolfe:
+            self.scheduler = "wolfe"
+        else:
+            self.scheduler = "linear"
         self.weight_decay = 5e-4
         self.augmentations = True
         self.privacy = dict(clip=None, noise=None)
@@ -75,8 +85,8 @@ class MemoryStrategy(Strategy):
         self.lr = 0.05
         self.epochs = 40
         self.batch_size = 64
-        self.optimizer = 'SGD'
-        self.scheduler = 'linear'
+        self.optimizer = "SGD"
+        self.scheduler = "linear"
         self.weight_decay = 5e-4
         self.augmentations = True
         self.privacy = dict(clip=None, noise=None)
@@ -103,14 +113,15 @@ class PrivacyStrategy(Strategy):
         self.lr = 0.1
         self.epochs = 40
         self.batch_size = 128
-        self.optimizer = 'SGD'
-        self.scheduler = 'linear'
+        self.optimizer = "SGD"
+        self.scheduler = "linear"
         self.weight_decay = 5e-4
         self.augmentations = True
         self.privacy = dict(clip=clip, noise=noise)
         self.adversarial_steps = 0
         self.validate = 10
         super().__init__(model_name, args)
+
 
 @dataclass
 class BasicStrategy(Strategy):
@@ -124,8 +135,8 @@ class BasicStrategy(Strategy):
         self.lr = 0.1
         self.epochs = 80
         self.batch_size = 128
-        self.optimizer = 'SGD-basic'
-        self.scheduler = 'none'
+        self.optimizer = "SGD-basic"
+        self.scheduler = "none"
         self.weight_decay = 0
         self.augmentations = False
         self.privacy = dict(clip=None, noise=None)
@@ -143,14 +154,15 @@ class AdversarialStrategy(Strategy):
         self.lr = 0.1
         self.epochs = 40
         self.batch_size = 128
-        self.optimizer = 'SGD'
-        self.scheduler = 'linear'
+        self.optimizer = "SGD"
+        self.scheduler = "linear"
         self.weight_decay = 5e-4
         self.augmentations = True
         self.privacy = dict(clip=None, noise=None)
         self.adversarial_steps = 4
         self.validate = 10
         super().__init__(model_name, args)
+
 
 @dataclass
 class FastStrategy(Strategy):
@@ -169,8 +181,8 @@ class FastStrategy(Strategy):
         self.lr = 0.1 * 512 / 128
         self.epochs = 40
         self.batch_size = 512
-        self.optimizer = 'SGD'
-        self.scheduler = 'linear'
+        self.optimizer = "SGD"
+        self.scheduler = "linear"
         self.weight_decay = 5e-4 * 512 / 128
         self.augmentations = True
         self.privacy = dict(clip=None, noise=None)

@@ -86,6 +86,7 @@ def options():
     parser.add_argument("--poison_path", default="poisons/", type=str)
     parser.add_argument(
         "--data_path",
+        # 最後には変えようね
         default="/hpc_share/ee217092/poisoning-gradient-matching/datasets",
         type=str,
     )
@@ -269,4 +270,12 @@ def options():
         "Only the launch utility should set this argument!",
     )
 
+    # wolfe
+    parser.add_argument(
+        "--wolfe",
+        type=float,
+        nargs=2,
+        default=None,
+        help="Wolfe conditions for line search",
+    )
     return parser
